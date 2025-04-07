@@ -1,0 +1,28 @@
+﻿<Window x:Class="TableMed.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TableMed"
+        mc:Ignorable="d"
+         MinHeight="450" MinWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <DataGrid Name="TableM"  Margin="0,101,0,30">
+
+        </DataGrid>
+        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,404,0,0"  >
+            <Button Name="Search" Width="90" Content="Найти"/>
+            <Button Name="Save" Width="90" Content="Сохранить"/>
+            <Button Name="Load" Width="90" Content="Загрузить файл"/>
+        </StackPanel>
+        <DatePicker HorizontalAlignment="Left" Margin="680,65,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Margin="554,67,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="429,67,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="296,68,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="171,71,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+
+    </Grid>
+</Window>
