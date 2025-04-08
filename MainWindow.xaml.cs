@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -14,10 +15,14 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Drawing;
+using ClosedXML;
+using ClosedXML.Excel;
+using ClosedXML.Parser;
 namespace TableMed
 {
     public partial class MainWindow : Window
     {
+        List<String> peoplist;
         public MainWindow()
         {
             InitializeComponent();
@@ -35,7 +40,9 @@ namespace TableMed
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             if(dlg.ShowDialog()==true && !string.IsNullOrWhiteSpace(dlg.FileName))
             {
-                TableM.ItemsSource = dlg.FileName;
+                peoplist=new List<string>();
+
+
             }
         }
         private void BirthDate_TextInput(object sender, TextCompositionEventArgs e)
