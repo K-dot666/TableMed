@@ -21,14 +21,17 @@ using ClosedXML.Parser;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Collections.ObjectModel;
+using Microsoft.Win32;
 namespace TableMed
 {
     public partial class MainWindow : Window
     {
-        List<String> data;
+        public ObservableCollection<string[]> data { get; set; } = new ObservableCollection<string[]>();
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
         }
         private void Search_Click(object sender, RoutedEventArgs e)
         {
@@ -40,52 +43,67 @@ namespace TableMed
         }
         private void Load_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
+
             try
             {
                 if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.FileName))
                 {
-                    List<String> sheets;
-                    data = new List<string>();
-                    sheets = new List<string>();
-                    var rows = new List<List<string>>();
+                    TableM.Columns.Clear();
+                    data.Clear();
+
                     using (var workbook = new XLWorkbook(dlg.FileName))
                     {
-                        foreach (IXLWorksheet worksheet in workbook.Worksheets)
-                        {
-                            sheets.Add(worksheet.Name);
-                        }
-                        var sheet = workbook.Worksheet(sheets[0]);
+                        var sheets = workbook.Worksheets.ToList();
+
+                        if (!sheets.Any())
+                            throw new InvalidOperationException("Файл Excel не содержит листов.");
+
+                        var sheet = sheets[0];
                         var headers = sheet.FirstRowUsed();
-                        foreach (var c in headers.Cells())
+                        for (int i = 0; i < headers.Cells().Count(); i++)
                         {
-                            string headertext = c.Value.ToString();
-                            if (!string.IsNullOrWhiteSpace(headertext))
+                            var header = headers.Cells().ElementAt(i).Value.ToString() ?? "";
+                            if (!string.IsNullOrWhiteSpace(header))
                             {
-                                TableM.Columns.Add(new DataGridTextColumn { Header = headertext });
+                                var column = new DataGridTextColumn
+                                {
+                                    Header = header,
+                                    Binding = new Binding($"[{i}]") // Привязка к индексу массива
+                                };
+                                TableM.Columns.Add(column);
                             }
                         }
-                        var datarow = headers.RowBelow();
 
-                        // Читаем данные построчно
+                        var datarow = headers.RowBelow();
+                        int rowIndex = 0;
+
                         while (!datarow.IsEmpty())
                         {
-                            var rowValues = new List<string>();
-                            foreach (var v in datarow.Cells())
+                            var rowValues = datarow.Cells()
+                                .Select(c => c.Value.ToString() ?? "")
+                                .ToArray();
+
+                            // Добавляем только если есть данные
+                            if (rowValues.Any(v => !string.IsNullOrWhiteSpace(v)))
                             {
-                                string value = v.Value.ToString();
-                                rowValues.Add(value);
+                                data.Add(rowValues);
+                                rowIndex++;
                             }
-                            rows.Add(rowValues);
+
                             datarow = datarow.RowBelow();
                         }
+
+                        TableM.ItemsSource = null;
                         TableM.ItemsSource = data;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Ошибка при чтении файла Excel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void BirthDate_TextInput(object sender, TextCompositionEventArgs e)

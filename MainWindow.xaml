@@ -10,12 +10,11 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <DataGrid Name="TableM" ItemsSource="{Binding data, UpdateSourceTrigger=PropertyChanged}"  Margin="0,101,0,30" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn>
-                    
-                </DataGridTextColumn>
-            </DataGrid.Columns>
+        <DataGrid Name="TableM" 
+          ItemsSource="{Binding data, UpdateSourceTrigger=PropertyChanged}"  
+          Margin="0,101,0,30" 
+          AutoGenerateColumns="False"
+          CanUserAddRows="False">
         </DataGrid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom"  Height="30" Orientation="Horizontal" Margin="0,404,0,0"  >
             <Button Name="Search" Width="90" Content="Найти" Click="Search_Click"/>
