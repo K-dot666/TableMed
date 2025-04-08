@@ -18,11 +18,12 @@ using DocumentFormat.OpenXml.Drawing;
 using ClosedXML;
 using ClosedXML.Excel;
 using ClosedXML.Parser;
+using DocumentFormat.OpenXml.Spreadsheet;
 namespace TableMed
 {
     public partial class MainWindow : Window
     {
-        List<String> peoplist;
+        List<String> data;
         public MainWindow()
         {
             InitializeComponent();
@@ -38,11 +39,36 @@ namespace TableMed
         private void Load_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            if(dlg.ShowDialog()==true && !string.IsNullOrWhiteSpace(dlg.FileName))
+            try
             {
-                peoplist=new List<string>();
+                if(dlg.ShowDialog()==true && !string.IsNullOrWhiteSpace(dlg.FileName))
+                {
+                    List<String> sheets;
+                    data = new List<string>();
+                    sheets=new List<string>();
+                    var getdata=new XLWorkbook(dlg.FileName);
+                    using (getdata)
+                    {
+                        foreach (IXLWorksheet worksheet in getdata.Worksheets)
+                        {
+                            sheets.Add(worksheet.Name);
+                        }
 
-
+                        var sheet = getdata.Worksheet(sheets[0]);
+                        var headers = sheet.FirstRowUsed();
+                        var datarow = headers.RowBelow();
+                        while (!datarow.IsEmpty())
+                        {
+                            data.Add(datarow.ToString());
+                            datarow = datarow.RowBelow();
+                        }
+                    }
+                    TableM.ItemsSource = data;
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message,"Ошибка",MessageBoxButton.OK,MessageBoxImage.Error);
             }
         }
         private void BirthDate_TextInput(object sender, TextCompositionEventArgs e)
