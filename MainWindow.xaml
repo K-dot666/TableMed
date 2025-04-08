@@ -10,7 +10,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <DataGrid Name="TableM"  Margin="0,101,0,30" AutoGenerateColumns="False">
+        <DataGrid Name="TableM" ItemsSource="{Binding data, UpdateSourceTrigger=PropertyChanged}"  Margin="0,101,0,30" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn>
                     

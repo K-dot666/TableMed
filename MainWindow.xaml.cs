@@ -19,6 +19,8 @@ using ClosedXML;
 using ClosedXML.Excel;
 using ClosedXML.Parser;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 namespace TableMed
 {
     public partial class MainWindow : Window
@@ -41,34 +43,49 @@ namespace TableMed
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             try
             {
-                if(dlg.ShowDialog()==true && !string.IsNullOrWhiteSpace(dlg.FileName))
+                if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.FileName))
                 {
                     List<String> sheets;
                     data = new List<string>();
-                    sheets=new List<string>();
-                    var getdata=new XLWorkbook(dlg.FileName);
-                    using (getdata)
+                    sheets = new List<string>();
+                    var rows = new List<List<string>>();
+                    using (var workbook = new XLWorkbook(dlg.FileName))
                     {
-                        foreach (IXLWorksheet worksheet in getdata.Worksheets)
+                        foreach (IXLWorksheet worksheet in workbook.Worksheets)
                         {
                             sheets.Add(worksheet.Name);
                         }
-
-                        var sheet = getdata.Worksheet(sheets[0]);
+                        var sheet = workbook.Worksheet(sheets[0]);
                         var headers = sheet.FirstRowUsed();
+                        foreach (var c in headers.Cells())
+                        {
+                            string headertext = c.Value.ToString();
+                            if (!string.IsNullOrWhiteSpace(headertext))
+                            {
+                                TableM.Columns.Add(new DataGridTextColumn { Header = headertext });
+                            }
+                        }
                         var datarow = headers.RowBelow();
+
+                        // Читаем данные построчно
                         while (!datarow.IsEmpty())
                         {
-                            data.Add(datarow.ToString());
+                            var rowValues = new List<string>();
+                            foreach (var v in datarow.Cells())
+                            {
+                                string value = v.Value.ToString();
+                                rowValues.Add(value);
+                            }
+                            rows.Add(rowValues);
                             datarow = datarow.RowBelow();
                         }
+                        TableM.ItemsSource = data;
                     }
-                    TableM.ItemsSource = data;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message,"Ошибка",MessageBoxButton.OK,MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void BirthDate_TextInput(object sender, TextCompositionEventArgs e)
