@@ -13,16 +13,24 @@
         <DataGrid Name="TableM"  Margin="0,101,0,30">
 
         </DataGrid>
-        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,404,0,0"  >
-            <Button Name="Search" Width="90" Content="Найти"/>
-            <Button Name="Save" Width="90" Content="Сохранить"/>
-            <Button Name="Load" Width="90" Content="Загрузить файл"/>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom"  Height="30" Orientation="Horizontal" Margin="0,404,0,0"  >
+            <Button Name="Search" Width="90" Content="Найти" Click="Search_Click"/>
+            <Button Name="Save" Width="90" Content="Сохранить" Click="Save_Click"/>
+            <Button Name="Load" Width="90" Content="Загрузить файл" Click="Load_Click"/>
         </StackPanel>
-        <DatePicker HorizontalAlignment="Left" Margin="680,65,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Margin="554,67,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <TextBox HorizontalAlignment="Left" Margin="429,67,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <TextBox HorizontalAlignment="Left" Margin="296,68,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <TextBox HorizontalAlignment="Left" Margin="171,71,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <Canvas Height="51" Margin="93,29,93,0" VerticalAlignment="Top" Width="614">
+            <DatePicker x:Name="BirthDate"  HorizontalAlignment="Left" Canvas.Left="514" Canvas.Top="27" VerticalAlignment="Center" TextInput="BirthDate_TextInput"/>
+            <TextBox x:Name="District" TextWrapping="Wrap" Width="120" HorizontalAlignment="Center" Canvas.Left="389" Canvas.Top="26" VerticalAlignment="Top" Height="25"/>
+            <TextBox x:Name="MidName" TextWrapping="Wrap" Width="120" HorizontalAlignment="Center" Canvas.Left="258" Canvas.Top="26" VerticalAlignment="Top" Height="25"/>
+            <TextBox x:Name="FirstName" TextWrapping="Wrap" Width="120" HorizontalAlignment="Center" Canvas.Left="125" Canvas.Top="26" VerticalAlignment="Top" Height="25"/>
+            <TextBox x:Name="LastName" TextWrapping="Wrap" Width="120" HorizontalAlignment="Center" Canvas.Top="26" VerticalAlignment="Top" Height="25"/>
+            <Label Content="Фамилия" HorizontalAlignment="Left" Canvas.Left="41" VerticalAlignment="Top"/>
+            <Label Content="Имя" HorizontalAlignment="Left" Canvas.Left="168" VerticalAlignment="Center"/>
+            <Label Content="Отчество" HorizontalAlignment="Left" Canvas.Left="288" VerticalAlignment="Center"/>
+            <Label Content="Район" HorizontalAlignment="Left" Canvas.Left="430" VerticalAlignment="Top"/>
+            <Label Content="Дата рождения" HorizontalAlignment="Left" Canvas.Left="514" Canvas.Top="1" VerticalAlignment="Top"/>
+
+        </Canvas>
 
     </Grid>
 </Window>
