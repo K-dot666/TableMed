@@ -28,6 +28,7 @@ namespace TableMed
     public partial class MainWindow : Window
     {
         public ObservableCollection<string[]> data { get; set; } = new ObservableCollection<string[]>();
+        public ObservableCollection<string[]> dataTemp { get; set; } = new ObservableCollection<string[]>();
         public MainWindow()
         {
             InitializeComponent();
@@ -35,7 +36,30 @@ namespace TableMed
         }
         private void Search_Click(object sender, RoutedEventArgs e)
         {
-
+            if (string.IsNullOrEmpty(District.Text)|| string.IsNullOrEmpty(BirthDate.Text)||
+                string.IsNullOrEmpty(MidName.Text)|| string.IsNullOrEmpty(LastName.Text)|| string.IsNullOrEmpty(FirstName.Text))
+            {
+                //https://github.com/ClosedXML/ClosedXML/wiki/Sorting-Data
+            }
+            else
+            {
+                TableM.ItemsSource=null;
+                var SearchDateB =BirthDate.Text.ToLower();
+                var SearchDist = District.Text.ToLower();
+                var SearchMidN = MidName.Text.ToLower();
+                var SearchFirstN = FirstName.Text.ToLower();
+                var SearchLastN = LastName.Text.ToLower();
+                foreach (var item in data)
+                {
+                    if(item.ToString().ToLower().Contains(SearchDateB)||item.ToString().ToLower().Contains(SearchLastN)||
+                        item.ToString().ToLower().Contains(SearchMidN)|| item.ToString().ToLower().Contains(SearchFirstN)||
+                        item.ToString().ToLower().Contains(SearchDist))
+                    {
+                        dataTemp.Add(item);
+                        TableM.ItemsSource = dataTemp;
+                    }
+                }
+            }
         }
         private void Save_Click(object sender, RoutedEventArgs e)
         {
@@ -55,7 +79,7 @@ namespace TableMed
                     {
                         var sheets = workbook.Worksheets.ToList();
                         if (!sheets.Any())
-                            throw new InvalidOperationException("Файл Excel не содержит листов.");
+                            throw new InvalidOperationException("Файл не содержит листов.");
 
                         var sheet = sheets[0];
                         var headers = sheet.FirstRowUsed();
