@@ -44,19 +44,16 @@ namespace TableMed
         private void Load_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
-
+            dlg.Filter = "(*.xlsx)|*.xlsx";
             try
             {
                 if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.FileName))
                 {
                     TableM.Columns.Clear();
                     data.Clear();
-
                     using (var workbook = new XLWorkbook(dlg.FileName))
                     {
                         var sheets = workbook.Worksheets.ToList();
-
                         if (!sheets.Any())
                             throw new InvalidOperationException("Файл Excel не содержит листов.");
 
@@ -75,26 +72,18 @@ namespace TableMed
                                 TableM.Columns.Add(column);
                             }
                         }
-
                         var datarow = headers.RowBelow();
-                        int rowIndex = 0;
-
                         while (!datarow.IsEmpty())
                         {
                             var rowValues = datarow.Cells()
                                 .Select(c => c.Value.ToString() ?? "")
                                 .ToArray();
-
-                            // Добавляем только если есть данные
                             if (rowValues.Any(v => !string.IsNullOrWhiteSpace(v)))
                             {
                                 data.Add(rowValues);
-                                rowIndex++;
                             }
-
                             datarow = datarow.RowBelow();
                         }
-
                         TableM.ItemsSource = null;
                         TableM.ItemsSource = data;
                     }
