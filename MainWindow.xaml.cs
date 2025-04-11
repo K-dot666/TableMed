@@ -39,7 +39,7 @@ namespace TableMed
             if (string.IsNullOrEmpty(District.Text)|| string.IsNullOrEmpty(BirthDate.Text)||
                 string.IsNullOrEmpty(MidName.Text)|| string.IsNullOrEmpty(LastName.Text)|| string.IsNullOrEmpty(FirstName.Text))
             {
-                //https://github.com/ClosedXML/ClosedXML/wiki/Sorting-Data
+                return;
             }
             else
             {
@@ -69,12 +69,14 @@ namespace TableMed
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "(*.xlsx)|*.xlsx";
+
             try
             {
                 if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.FileName))
                 {
                     TableM.Columns.Clear();
                     data.Clear();
+
                     using (var workbook = new XLWorkbook(dlg.FileName))
                     {
                         var sheets = workbook.Worksheets.ToList();
@@ -83,34 +85,66 @@ namespace TableMed
 
                         var sheet = sheets[0];
                         var headers = sheet.FirstRowUsed();
-                        for (int i = 0; i < headers.Cells().Count(); i++)
+
+                        // Создаем список ожидаемых колонок
+                        var requiredColumns = new List<string>
                         {
-                            var header = headers.Cells().ElementAt(i).Value.ToString() ?? "";
-                            if (!string.IsNullOrWhiteSpace(header))
-                            {
-                                var column = new DataGridTextColumn
-                                {
-                                    Header = header,
-                                    Binding = new Binding($"[{i}]") // Привязка к индексу массива
-                                };
-                                TableM.Columns.Add(column);
-                            }
+                            "Фамилия",
+                            "Имя",
+                            "Отчество",
+                            "Дата рождения",
+                            "Район"
+                        };
+
+                        // Находим все заголовки колонок
+                        var actualHeaders = headers.Cells()
+                            .Where(cell => !string.IsNullOrWhiteSpace(cell.Value.ToString()))
+                            .Select(cell => cell.Value.ToString())
+                            .ToList();
+
+                        // Проверяем наличие всех обязательных колонок
+                        var missingColumns = requiredColumns
+                            .Except(actualHeaders)
+                            .ToList();
+
+                        if (missingColumns.Any())
+                        {
+                            var errorMessage = $"Файл не содержит следующие обязательные столбцы:\n{string.Join("\n", missingColumns)}";
+                            MessageBox.Show(errorMessage, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
                         }
+
+                        // Создаем колонки таблицы
+                        for (int i = 0; i < actualHeaders.Count; i++)
+                        {
+                            var header = actualHeaders[i];
+                            var column = new DataGridTextColumn
+                            {
+                                Header = header,
+                                Binding = new Binding($"[{i}]")
+                            };
+                            TableM.Columns.Add(column);
+                        }
+
+                        // Читаем данные
                         var datarow = headers.RowBelow();
                         while (!datarow.IsEmpty())
                         {
                             var rowValues = datarow.Cells()
                                 .Select(c => c.Value.ToString() ?? "")
                                 .ToArray();
+
                             if (rowValues.Any(v => !string.IsNullOrWhiteSpace(v)))
                             {
                                 data.Add(rowValues);
                             }
+
                             datarow = datarow.RowBelow();
                         }
-                        TableM.ItemsSource = null;
-                        TableM.ItemsSource = data;
                     }
+
+                    TableM.ItemsSource = null;
+                    TableM.ItemsSource = data;
                 }
             }
             catch (Exception ex)
