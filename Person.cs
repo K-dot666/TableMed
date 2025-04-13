@@ -24,7 +24,6 @@ namespace TableMed
                 OnPropertyChanged(nameof(Фамилия));
             }
         }
-
         public string Имя
         {
             get => firstName;
@@ -34,7 +33,6 @@ namespace TableMed
                 OnPropertyChanged(nameof(Имя));
             }
         }
-
         public string Отчество
         {
             get => middleName;
@@ -44,7 +42,6 @@ namespace TableMed
                 OnPropertyChanged(nameof(Отчество));
             }
         }
-
         public DateTime Дата_рождения
         {
             get => birthDate;
@@ -54,7 +51,6 @@ namespace TableMed
                 OnPropertyChanged(nameof(Дата_рождения));
             }
         }
-
         public string Район
         {
             get => district;
@@ -64,7 +60,6 @@ namespace TableMed
                 OnPropertyChanged(nameof(Район));
             }
         }
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {

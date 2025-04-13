@@ -18,11 +18,7 @@ namespace TableMed
 {
     public partial class MainWindow : Window
     {
-<<<<<<< HEAD
         public ObservableCollection<Person> data = new ObservableCollection<Person>();
-=======
-        public ObservableCollection<Person> data=new ObservableCollection<Person>();
->>>>>>> 348de83d65cb616e89687db044c0573db611d2d7
         public ObservableCollection<Person> dataTemp = new ObservableCollection<Person>();
         public DateTime date = new DateTime();
         private string currentFilePath;
@@ -75,7 +71,7 @@ namespace TableMed
                             if (columnName == "Дата рождения")
                             {
 
-                                if (!DateTime.TryParse(newValue, out DateTime date)|| Regex.IsMatch(newValue, @"^\d{2}\.\d{2}\.\d{4}$")==false)
+                                if (!DateTime.TryParse(newValue, out DateTime date) || Regex.IsMatch(newValue, @"^\d{2}\.\d{2}\.\d{4}$") == false)
                                 {
                                     MessageBox.Show("Неверный формат даты. Используйте формат ДД.ММ.ГГГГ",
                                         "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -115,7 +111,7 @@ namespace TableMed
         {
             if (string.IsNullOrEmpty(CurrentFilePath))
             {
-                MessageBox.Show("Файл не выбран", "Ошибка",MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Файл не выбран", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -141,12 +137,12 @@ namespace TableMed
                         worksheet.Cell(i + 2, 5).Value = person.Район;
                     }
                     workbook.Save();
-                    MessageBox.Show("Изменения успешно сохранены","Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Изменения успешно сохранены", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}","Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void Load_Click(object sender, RoutedEventArgs e)
@@ -169,19 +165,6 @@ namespace TableMed
                             throw new InvalidOperationException("Файл не содержит листов.");
                         var sheet = sheets[0];
                         var headers = sheet.FirstRowUsed();
-<<<<<<< HEAD
-=======
-
-                        // Создаем список ожидаемых колонок
-                        var requiredColumns = new List<string>
-                {
-                    "Фамилия",
-                    "Имя",
-                    "Отчество",
-                    "Дата_рождения",
-                    "Район"
-                };
->>>>>>> 348de83d65cb616e89687db044c0573db611d2d7
 
                         var requiredColumns = new List<string> { "Фамилия", "Имя", "Отчество", "Дата_рождения", "Район" };
                         var actualHeaders = headers.Cells()
@@ -197,10 +180,6 @@ namespace TableMed
                             return;
                         }
 
-<<<<<<< HEAD
-=======
-                        // Создаем колонки DataGrid с правильным binding'ом
->>>>>>> 348de83d65cb616e89687db044c0573db611d2d7
                         foreach (var header in requiredColumns)
                         {
                             TableM.Columns.Add(new DataGridTextColumn
@@ -212,7 +191,6 @@ namespace TableMed
                         }
 
                         var datarow = headers.RowBelow();
-<<<<<<< HEAD
                         while (!datarow.IsEmpty())
                         {
                             var rowValues = datarow.Cells().Select(c =>
@@ -232,88 +210,29 @@ namespace TableMed
 
                             if (isValidRow)
                             {
-=======
-                        int rowCount = 0;
-                        int validRowCount = 0;
-
-                        // Добавляем отладочный вывод для каждой строки
-                        while (!datarow.IsEmpty())
-                        {
-                            rowCount++;
-                            var rowValues = datarow.Cells().Select(c =>
-                            {
-                                string value = c.Value.ToString() ?? "";
-                                return value.Trim(); // Удаляем пробелы
-                            }).ToArray();
-                            bool isValidRow = false;
-                            foreach (var column in requiredColumns)
-                            {
-                                int columnIndex = actualHeaders.IndexOf(column);
-                                if (!string.IsNullOrWhiteSpace(rowValues[columnIndex]))
-                                {
-                                    isValidRow = true;
-                                    break;
-                                }
-                            }
-
-                            Debug.WriteLine($"Строка {rowCount}:");
-                            Debug.WriteLine($"Значения: [{string.Join(" | ", rowValues)}]");
-
-                            if (isValidRow)
-                            {
-                                validRowCount++;
-                                // Добавьте перед созданием объекта Person
-                                Debug.WriteLine("Индексы заголовков:");
-                                foreach (var header in actualHeaders)
-                                {
-                                    Debug.WriteLine($"  {header}: {actualHeaders.IndexOf(header)}");
-                                }
->>>>>>> 348de83d65cb616e89687db044c0573db611d2d7
                                 var person = new Person
                                 {
                                     Фамилия = rowValues[actualHeaders.IndexOf("Фамилия")],
                                     Имя = rowValues[actualHeaders.IndexOf("Имя")],
                                     Отчество = rowValues[actualHeaders.IndexOf("Отчество")],
-<<<<<<< HEAD
                                     Дата_рождения = DateTime.Parse(rowValues[actualHeaders.IndexOf("Дата_рождения")]),
                                     Район = rowValues[actualHeaders.IndexOf("Район")]
                                 };
-=======
-                                    Дата_рождения = rowValues[actualHeaders.IndexOf("Дата_рождения")],
-                                    Район = rowValues[actualHeaders.IndexOf("Район")]
-                                };
-                                Debug.WriteLine($"Добавлена строка {validRowCount}:");
-                                foreach (var prop in typeof(Person).GetProperties())
-                                {
-                                    Debug.WriteLine($"{prop.Name}: {prop.GetValue(person)}");
-                                }
-
->>>>>>> 348de83d65cb616e89687db044c0573db611d2d7
                                 data.Add(person);
                             }
                             datarow = datarow.RowBelow();
                         }
-<<<<<<< HEAD
                         TableM.ItemsSource = Data;
                         TableM.UpdateLayout();
-=======
-
-                        Debug.WriteLine($"Обработано строк: {rowCount}");
-                        Debug.WriteLine($"Валидных строк добавлено: {validRowCount}");
-                        Debug.WriteLine($"Количество элементов в dataTemp: {dataTemp.Count}");
-                        Debug.WriteLine($"Количество элементов в Data: {Data.Count}");
->>>>>>> 348de83d65cb616e89687db044c0573db611d2d7
                     }
                 }
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка при чтении файла Excel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        
         private void Search_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(District.Text) || string.IsNullOrEmpty(BirthDate.Text) ||
