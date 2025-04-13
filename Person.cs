@@ -1,10 +1,10 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace TableMed
 {
     public class Person : INotifyPropertyChanged
@@ -12,8 +12,9 @@ namespace TableMed
         private string lastName;
         private string firstName;
         private string middleName;
-        private string birthDate;
+        private DateTime birthDate;
         private string district;
+
         public string Фамилия
         {
             get => lastName;
@@ -23,6 +24,7 @@ namespace TableMed
                 OnPropertyChanged(nameof(Фамилия));
             }
         }
+
         public string Имя
         {
             get => firstName;
@@ -32,6 +34,7 @@ namespace TableMed
                 OnPropertyChanged(nameof(Имя));
             }
         }
+
         public string Отчество
         {
             get => middleName;
@@ -41,7 +44,8 @@ namespace TableMed
                 OnPropertyChanged(nameof(Отчество));
             }
         }
-        public string Дата_рождения
+
+        public DateTime Дата_рождения
         {
             get => birthDate;
             set
@@ -50,6 +54,7 @@ namespace TableMed
                 OnPropertyChanged(nameof(Дата_рождения));
             }
         }
+
         public string Район
         {
             get => district;
@@ -59,6 +64,7 @@ namespace TableMed
                 OnPropertyChanged(nameof(Район));
             }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
