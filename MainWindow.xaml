@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:TableMed"
         mc:Ignorable="d"
          MinHeight="450" MinWidth="800">
+    
     <Grid>
         <DataGrid Name="TableM" 
           ItemsSource="{Binding Data, UpdateSourceTrigger=PropertyChanged}"  
@@ -23,7 +24,7 @@
             <Button Name="Load" Width="90" Content="Загрузить файл" Click="Load_Click"/>
         </StackPanel>
         <Canvas Height="51" Margin="93,29,93,0" VerticalAlignment="Top" Width="614">
-            <DatePicker x:Name="BirthDate"  HorizontalAlignment="Left" Canvas.Left="514" Canvas.Top="27" VerticalAlignment="Center" TextInput="BirthDate_TextInput"/>
+            <DatePicker x:Name="BirthDate"  HorizontalAlignment="Left" Canvas.Left="514" Canvas.Top="27" VerticalAlignment="Center" />
             <TextBox x:Name="District" TextWrapping="Wrap" Width="120" HorizontalAlignment="Center" Canvas.Left="389" Canvas.Top="26" VerticalAlignment="Top" Height="25"/>
             <TextBox x:Name="MidName" TextWrapping="Wrap" Width="120" HorizontalAlignment="Center" Canvas.Left="258" Canvas.Top="26" VerticalAlignment="Top" Height="25"/>
             <TextBox x:Name="FirstName" TextWrapping="Wrap" Width="120" HorizontalAlignment="Center" Canvas.Left="125" Canvas.Top="26" VerticalAlignment="Top" Height="25"/>

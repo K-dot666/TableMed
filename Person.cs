@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 namespace TableMed
 {
@@ -65,5 +66,25 @@ namespace TableMed
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        public string this[string columnName]
+        {
+            get
+            {
+                if (columnName == nameof(Дата_рождения))
+                {
+                    if (birthDate == DateTime.MinValue)
+                    {
+                        return "Дата рождения не может быть пустой";
+                    }
+                    if (!Regex.IsMatch(birthDate.ToString(), @"^\d{2}\.\d{2}\.\d{4}$"))
+                    {
+                        return "Дата рождения не может быть в будущем";
+                    }
+                }
+                return string.Empty;
+            }
+        }
+
+        public string Error => string.Empty;
     }
 }

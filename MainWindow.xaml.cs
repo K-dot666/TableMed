@@ -66,12 +66,11 @@ namespace TableMed
                         if (person != null)
                         {
                             string columnName = e.Column.Header as string;
-                            string newValue = e.EditingElement.ToString() ?? "";
 
                             if (columnName == "Дата рождения")
                             {
 
-                                if (!DateTime.TryParse(newValue, out DateTime date) || Regex.IsMatch(newValue, @"^\d{2}\.\d{2}\.\d{4}$") == false)
+                                if (!Regex.IsMatch(e.EditingElement.ToString(), @"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$"))
                                 {
                                     MessageBox.Show("Неверный формат даты. Используйте формат ДД.ММ.ГГГГ",
                                         "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -83,19 +82,19 @@ namespace TableMed
                             switch (columnName)
                             {
                                 case "Фамилия":
-                                    person.Фамилия = newValue;
+                                    person.Фамилия = e.EditingElement.ToString() ?? "";
                                     break;
                                 case "Имя":
-                                    person.Имя = newValue;
+                                    person.Имя = e.EditingElement.ToString() ?? "";
                                     break;
                                 case "Отчество":
-                                    person.Отчество = newValue;
+                                    person.Отчество = e.EditingElement.ToString() ?? "";
                                     break;
                                 case "Дата рождения":
-                                    person.Дата_рождения = date;
+                                    person.Дата_рождения = DateTime.Parse(e.EditingElement.ToString() ?? "");
                                     break;
                                 case "Район":
-                                    person.Район = newValue;
+                                    person.Район = e.EditingElement.ToString() ?? "";
                                     break;
                             }
                         }
@@ -125,15 +124,13 @@ namespace TableMed
                         worksheet.LastCell().Address).Clear();
 
                     // Устанавливаем формат даты для всей колонки с датами
-                    worksheet.Column(4).Style.NumberFormat.Format = "dd.mm.yyyy";
-
                     for (int i = 0; i < data.Count; i++)
                     {
                         var person = data[i];
                         worksheet.Cell(i + 2, 1).Value = person.Фамилия;
                         worksheet.Cell(i + 2, 2).Value = person.Имя;
                         worksheet.Cell(i + 2, 3).Value = person.Отчество;
-                        worksheet.Cell(i + 2, 4).Value = person.Дата_рождения.ToString("d");
+                        worksheet.Cell(i + 2, 4).Value = person.Дата_рождения;
                         worksheet.Cell(i + 2, 5).Value = person.Район;
                     }
                     workbook.Save();
@@ -235,44 +232,86 @@ namespace TableMed
         }
         private void Search_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(District.Text) || string.IsNullOrEmpty(BirthDate.Text) ||
-                string.IsNullOrEmpty(MidName.Text) || string.IsNullOrEmpty(LastName.Text) || string.IsNullOrEmpty(FirstName.Text))
+            // Очистка предыдущих результатов
+            dataTemp.Clear();
+            TableM.ItemsSource = null;
+
+            // Получение значений из полей поиска
+            var searchLastName = LastName.Text.ToLower();
+            var searchFirstName = FirstName.Text.ToLower();
+            var searchMidName = MidName.Text.ToLower();
+            var searchDistrict = District.Text.ToLower();
+            var searchBirthDate = BirthDate.Text.ToLower();
+
+            // Валидация даты рождения
+            Regex dateRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$");
+            if (!string.IsNullOrEmpty(searchBirthDate) && !dateRegex.IsMatch(searchBirthDate))
             {
+                BirthDate.BorderBrush = Brushes.Red;
                 return;
+            }
+
+            // Поиск по всем записям
+            foreach (var person in Data)
+            {
+                bool isMatch = true;
+
+                // Проверка фамилии
+                if (!string.IsNullOrEmpty(searchLastName) &&
+                    !person.Фамилия.ToLower().Contains(searchLastName))
+                {
+                    isMatch = false;
+                }
+
+                // Проверка имени
+                if (!string.IsNullOrEmpty(searchFirstName) &&
+                    !person.Имя.ToLower().Contains(searchFirstName))
+                {
+                    isMatch = false;
+                }
+
+                // Проверка отчества
+                if (!string.IsNullOrEmpty(searchMidName) &&
+                    !person.Отчество.ToLower().Contains(searchMidName))
+                {
+                    isMatch = false;
+                }
+
+                // Проверка района
+                if (!string.IsNullOrEmpty(searchDistrict) &&
+                    !person.Район.ToLower().Contains(searchDistrict))
+                {
+                    isMatch = false;
+                }
+
+                // Проверка даты рождения
+                if (!string.IsNullOrEmpty(searchBirthDate))
+                {
+                    string dateStr = person.Дата_рождения.ToString("dd.MM.yyyy");
+                    if (!dateStr.Contains(searchBirthDate))
+                    {
+                        isMatch = false;
+                    }
+                }
+
+                // Добавление совпадения
+                if (isMatch)
+                {
+                    dataTemp.Add(person);
+                }
+            }
+
+            // Обновление отображения
+            if (dataTemp.Count > 0)
+            {
+                TableM.ItemsSource = dataTemp;
+                TableM.UpdateLayout();
             }
             else
             {
-                TableM.ItemsSource = null;
-                var SearchDateB = BirthDate.Text.ToLower();
-                var SearchDist = District.Text.ToLower();
-                var SearchMidN = MidName.Text.ToLower();
-                var SearchFirstN = FirstName.Text.ToLower();
-                var SearchLastN = LastName.Text.ToLower();
-                foreach (var item in data)
-                {
-                    if (item.ToString().ToLower().Contains(SearchDateB) || item.ToString().ToLower().Contains(SearchLastN) ||
-                        item.ToString().ToLower().Contains(SearchMidN) || item.ToString().ToLower().Contains(SearchFirstN) ||
-                        item.ToString().ToLower().Contains(SearchDist))
-                    {
-                        dataTemp.Add(item);
-                        TableM.ItemsSource = dataTemp;
-                    }
-                }
+                MessageBox.Show("Ничего не найдено", "Результат поиска",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
-        }
-        private void BirthDate_TextInput(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex(@"\d{2}/./\d{2}/./\d{4}");
-            string date = BirthDate.Text;
-            if (!regex.IsMatch(date))
-            {
-                BirthDate.BorderBrush = Brushes.Red;
-            }
-        }
-        private bool IsValidDate(string dateString)
-        {
-            return Regex.IsMatch(dateString, @"^\d{2}\.\d{2}\.\d{4}$") &&
-                   DateTime.TryParse(dateString, out _);
         }
     }
 }
