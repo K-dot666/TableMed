@@ -24,19 +24,31 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using System.ComponentModel;
+using System.Diagnostics;
 namespace TableMed
 {
     public partial class MainWindow : Window
     {
-        public ObservableCollection<string[]> data { get; set; } = new ObservableCollection<string[]>();
-        public ObservableCollection<string[]> dataTemp { get; set; } = new ObservableCollection<string[]>();
+        public ObservableCollection<Person> data;
+        public ObservableCollection<Person> dataTemp = new ObservableCollection<Person>();
         private string currentFilePath;
         private List<string> requiredColumns = new List<string> { "Фамилия", "Имя", "Отчество", "Дата рождения", "Район" };
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this;
+            TableM.ItemsSource = Data;
+            DataContext = this; 
         }
+        public ObservableCollection<Person> Data
+        {
+            get => data;
+            set
+            {
+                data = value;
+                OnPropertyChanged(new PropertyChangedEventArgs(nameof(Data)));
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
         {
@@ -60,11 +72,13 @@ namespace TableMed
 
                 if (rowIndex >= 0 && columnIndex >= 0 && rowIndex < data.Count)
                 {
+                    /*
                     var rowData = data[rowIndex];
                     if (columnIndex < rowData.Length)
                     {
                         rowData[columnIndex] = e.EditingElement.ToString() ?? "";
                     }
+                    */
                 }
 
                 // Сохраняем изменения в Excel файл
@@ -100,11 +114,13 @@ namespace TableMed
                     // Записываем данные, начиная со второй строки
                     for (int row = 1; row < data.Count; row++)
                     {
+                        /*
                         var rowData = data[row];
                         for (int col = 0; col < rowData.Length; col++)
                         {
                             worksheet.Cell(row + 2, col + 1).Value = rowData[col];
                         }
+                        */
                     }
 
                     workbook.Save();
@@ -118,6 +134,7 @@ namespace TableMed
                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        /*
         private void LoadFile(string filePath)
         {
             try
@@ -161,18 +178,21 @@ namespace TableMed
                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        */
         private void Load_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "(*.xlsx)|*.xlsx";
+
             try
             {
                 if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.FileName))
                 {
                     CurrentFilePath = dlg.FileName;
 
+                    // Очищаем существующие данные и колонки
                     TableM.Columns.Clear();
-                    data.Clear();
+                    dataTemp.Clear();
 
                     using (var workbook = new XLWorkbook(dlg.FileName))
                     {
@@ -182,16 +202,15 @@ namespace TableMed
 
                         var sheet = sheets[0];
                         var headers = sheet.FirstRowUsed();
-
                         // Создаем список ожидаемых колонок
                         var requiredColumns = new List<string>
-                        {
-                            "Фамилия",
-                            "Имя",
-                            "Отчество",
-                            "Дата рождения",
-                            "Район"
-                        };
+                    {
+                        "Фамилия",
+                        "Имя",
+                        "Отчество",
+                        "Дата рождения",
+                        "Район"
+                    };
 
                         // Находим все заголовки колонок
                         var actualHeaders = headers.Cells()
@@ -208,33 +227,51 @@ namespace TableMed
                             MessageBox.Show(errorMessage, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
-
-                        // Создаем колонки таблицы
-                        for (int i = 0; i < actualHeaders.Count; i++)
+                        // Создаем колонки DataGrid с правильным binding'ом
+                        foreach (var header in requiredColumns)
                         {
-                            var header = actualHeaders[i];
-                            var column = new DataGridTextColumn
+                            TableM.Columns.Add(new DataGridTextColumn
                             {
                                 Header = header,
-                                Binding = new Binding($"[{i}]")
-                            };
-                            TableM.Columns.Add(column);
+                                Binding = new Binding(header),
+                                IsReadOnly = false
+                            });
                         }
 
                         // Читаем данные
                         var datarow = headers.RowBelow();
+                        int rowCount = 0;
+                        int validRowCount = 0;
+
                         while (!datarow.IsEmpty())
                         {
+                            rowCount++;
                             var rowValues = datarow.Cells().Select(c => c.Value.ToString() ?? "").ToArray();
 
                             if (rowValues.Any(v => !string.IsNullOrWhiteSpace(v)))
-                                data.Add(rowValues);
+                            {
+                                validRowCount++;
+                                var person = new Person
+                                {
+                                    LastName = rowValues[actualHeaders.IndexOf("Фамилия")],
+                                    FirstName = rowValues[actualHeaders.IndexOf("Имя")],
+                                    MiddleName = rowValues[actualHeaders.IndexOf("Отчество")],
+                                    BirthDate = rowValues[actualHeaders.IndexOf("Дата рождения")],
+                                    District = rowValues[actualHeaders.IndexOf("Район")]
+                                };
+                                dataTemp.Add(person);
+                            }
 
                             datarow = datarow.RowBelow();
                         }
+
+                        // Добавляем отладочный вывод
+                        Debug.WriteLine($"Обработано строк: {rowCount}");
+                        Debug.WriteLine($"Валидных строк добавлено: {validRowCount}");
+                        Debug.WriteLine($"Количество элементов в dataTemp: {dataTemp.Count}");
+
+                        Data = new ObservableCollection<Person>(dataTemp);
                     }
-                    TableM.ItemsSource = null;
-                    TableM.ItemsSource = data;
                 }
             }
             catch (Exception ex)
@@ -260,6 +297,7 @@ namespace TableMed
                 var SearchLastN = LastName.Text.ToLower();
                 foreach (var item in data)
                 {
+                    /*
                     if(item.ToString().ToLower().Contains(SearchDateB)||item.ToString().ToLower().Contains(SearchLastN)||
                         item.ToString().ToLower().Contains(SearchMidN)|| item.ToString().ToLower().Contains(SearchFirstN)||
                         item.ToString().ToLower().Contains(SearchDist))
@@ -267,6 +305,7 @@ namespace TableMed
                         dataTemp.Add(item);
                         TableM.ItemsSource = dataTemp;
                     }
+                    */
                 }
             }
         }
