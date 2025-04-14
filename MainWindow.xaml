@@ -22,6 +22,7 @@
             <Button Name="Search" Width="90" Content="Найти" Click="Search_Click"/>
             <Button Name="Save" Width="90" Content="Сохранить" Click="Save_Click"/>
             <Button Name="Load" Width="90" Content="Загрузить файл" Click="Load_Click"/>
+            <Button Name="Clear" Content="Очистить поля" Click="Clear_Click" ></Button>
         </StackPanel>
         <Canvas Height="51" Margin="93,29,93,0" VerticalAlignment="Top" Width="614">
             <DatePicker x:Name="BirthDate"  HorizontalAlignment="Left" Canvas.Left="514" Canvas.Top="27" VerticalAlignment="Center" />

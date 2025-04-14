@@ -77,7 +77,7 @@ namespace TableMed
                         return "Дата рождения не может быть пустой";
                     }
                     if (!Regex.IsMatch(birthDate.ToString(), @"^\d{2}\.\d{2}\.\d{4}$"))
-                    {
+                    { 
                         return "Дата рождения не может быть в будущем";
                     }
                 }

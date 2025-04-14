@@ -25,7 +25,6 @@ namespace TableMed
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this;
             TableM.ItemsSource = Data;
 
         }
@@ -113,17 +112,12 @@ namespace TableMed
                 MessageBox.Show("Файл не выбран", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
             try
             {
                 using (var workbook = new XLWorkbook(CurrentFilePath))
                 {
                     var worksheet = workbook.Worksheets.Worksheet(1);
-                    var headerStyle = worksheet.Row(1).Style;
-                    worksheet.Range(worksheet.Row(2).FirstCell().Address,
-                        worksheet.LastCell().Address).Clear();
-
-                    // Устанавливаем формат даты для всей колонки с датами
+                    worksheet.Range(worksheet.Row(2).FirstCell().Address,worksheet.LastCell().Address).Clear();                    
                     for (int i = 0; i < data.Count; i++)
                     {
                         var person = data[i];
@@ -136,6 +130,7 @@ namespace TableMed
                     workbook.Save();
                     MessageBox.Show("Изменения успешно сохранены", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
+
             }
             catch (Exception ex)
             {
@@ -226,8 +221,7 @@ namespace TableMed
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка при чтении файла Excel",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Ошибка при чтении файла Excel",MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void Search_Click(object sender, RoutedEventArgs e)
@@ -235,56 +229,38 @@ namespace TableMed
             // Очистка предыдущих результатов
             dataTemp.Clear();
             TableM.ItemsSource = null;
-
             // Получение значений из полей поиска
             var searchLastName = LastName.Text.ToLower();
             var searchFirstName = FirstName.Text.ToLower();
             var searchMidName = MidName.Text.ToLower();
             var searchDistrict = District.Text.ToLower();
             var searchBirthDate = BirthDate.Text.ToLower();
-
-            // Валидация даты рождения
             Regex dateRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$");
             if (!string.IsNullOrEmpty(searchBirthDate) && !dateRegex.IsMatch(searchBirthDate))
             {
                 BirthDate.BorderBrush = Brushes.Red;
                 return;
             }
-
-            // Поиск по всем записям
+            //поиск совпадений по каждому полю
             foreach (var person in Data)
             {
                 bool isMatch = true;
-
-                // Проверка фамилии
-                if (!string.IsNullOrEmpty(searchLastName) &&
-                    !person.Фамилия.ToLower().Contains(searchLastName))
+                if (!string.IsNullOrEmpty(searchLastName) &&!person.Фамилия.ToLower().Contains(searchLastName))
                 {
                     isMatch = false;
                 }
-
-                // Проверка имени
-                if (!string.IsNullOrEmpty(searchFirstName) &&
-                    !person.Имя.ToLower().Contains(searchFirstName))
+                if (!string.IsNullOrEmpty(searchFirstName) &&!person.Имя.ToLower().Contains(searchFirstName))
                 {
                     isMatch = false;
                 }
-
-                // Проверка отчества
-                if (!string.IsNullOrEmpty(searchMidName) &&
-                    !person.Отчество.ToLower().Contains(searchMidName))
+                if (!string.IsNullOrEmpty(searchMidName) && !person.Отчество.ToLower().Contains(searchMidName))
                 {
                     isMatch = false;
                 }
-
-                // Проверка района
-                if (!string.IsNullOrEmpty(searchDistrict) &&
-                    !person.Район.ToLower().Contains(searchDistrict))
+                if (!string.IsNullOrEmpty(searchDistrict) &&!person.Район.ToLower().Contains(searchDistrict))
                 {
                     isMatch = false;
                 }
-
-                // Проверка даты рождения
                 if (!string.IsNullOrEmpty(searchBirthDate))
                 {
                     string dateStr = person.Дата_рождения.ToString("dd.MM.yyyy");
@@ -293,15 +269,13 @@ namespace TableMed
                         isMatch = false;
                     }
                 }
-
                 // Добавление совпадения
                 if (isMatch)
                 {
                     dataTemp.Add(person);
                 }
             }
-
-            // Обновление отображения
+            // рефреш 
             if (dataTemp.Count > 0)
             {
                 TableM.ItemsSource = dataTemp;
@@ -309,9 +283,17 @@ namespace TableMed
             }
             else
             {
-                MessageBox.Show("Ничего не найдено", "Результат поиска",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Ничего не найдено", "Результат поиска",MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            LastName.Text = string.Empty;
+            FirstName.Text = string.Empty;
+            MidName.Text = string.Empty;
+            District.Text = string.Empty;
+            BirthDate.Text = string.Empty;
+            TableM.SelectedIndex = -1;
         }
     }
 }
