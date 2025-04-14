@@ -183,7 +183,7 @@ namespace TableMed
 
                             if (header == "Дата_рождения")
                             {
-                                column.Binding.StringFormat = "d";
+                                column.Binding.StringFormat = "dd.MM.yyyy";
                             }
 
                             TableM.Columns.Add(column);
