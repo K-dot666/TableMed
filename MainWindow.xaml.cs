@@ -77,7 +77,6 @@ namespace TableMed
                                     return;
                                 }
                             }
-
                             switch (columnName)
                             {
                                 case "Фамилия":
@@ -130,7 +129,10 @@ namespace TableMed
                     workbook.Save();
                     MessageBox.Show("Изменения успешно сохранены", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show($"Не удалось сохранить изменения. Проверьте доступ к файлу", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
@@ -152,27 +154,27 @@ namespace TableMed
                     dataTemp.Clear();
                     using (var workbook = new XLWorkbook(dlg.FileName))
                     {
+                        //открываем файл,получаем первую страницу
                         var sheets = workbook.Worksheets.ToList();
                         if (!sheets.Any())
                             throw new InvalidOperationException("Файл не содержит листов.");
                         var sheet = sheets[0];
+                        //берем заголовки и проверяем обязательные
                         var headers = sheet.FirstRowUsed();
-
-                        var requiredColumns = new List<string> { "Фамилия", "Имя", "Отчество", "Дата_рождения", "Район" };
+                        var RequiredColumns = new List<string> { "Фамилия", "Имя", "Отчество", "Дата_рождения", "Район" };
                         var actualHeaders = headers.Cells()
                             .Where(cell => !string.IsNullOrWhiteSpace(cell.Value.ToString()))
                             .Select(cell => cell.Value.ToString())
                             .ToList();
-
-                        var missingColumns = requiredColumns.Except(actualHeaders).ToList();
-                        if (missingColumns.Any())
+                        var MissingColumns = RequiredColumns.Except(actualHeaders).ToList();
+                        if (MissingColumns.Any())
                         {
-                            var errorMessage = $"Файл не содержит следующие обязательные столбцы:\n{string.Join("\n", missingColumns)}";
+                            var errorMessage = $"Файл не содержит следующие обязательные столбцы:\n{string.Join("\n", MissingColumns)}";
                             MessageBox.Show(errorMessage, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
-
-                        foreach (var header in requiredColumns)
+                        //добавление заголовков в datagrid
+                        foreach (var header in RequiredColumns)
                         {
                             TableM.Columns.Add(new DataGridTextColumn
                             {
@@ -181,7 +183,7 @@ namespace TableMed
                             });
                             TableM.UpdateLayout();
                         }
-
+                        //считывание данных построчно
                         var datarow = headers.RowBelow();
                         while (!datarow.IsEmpty())
                         {
@@ -190,7 +192,6 @@ namespace TableMed
                                 string value = c.Value.ToString() ?? "";
                                 return value.Trim();
                             }).ToArray();
-
                             bool isValidRow = true;
                             if (!string.IsNullOrWhiteSpace(rowValues[actualHeaders.IndexOf("Дата_рождения")]))
                             {
@@ -199,7 +200,7 @@ namespace TableMed
                                     isValidRow = false;
                                 }
                             }
-
+                            //распределяем значения ячеек по полям из столбцов файла и и добавляем объект в коллекцию
                             if (isValidRow)
                             {
                                 var person = new Person
@@ -229,35 +230,48 @@ namespace TableMed
             // Очистка предыдущих результатов
             dataTemp.Clear();
             TableM.ItemsSource = null;
-            // Получение значений из полей поиска
-            var searchLastName = LastName.Text.ToLower();
-            var searchFirstName = FirstName.Text.ToLower();
-            var searchMidName = MidName.Text.ToLower();
-            var searchDistrict = District.Text.ToLower();
-            var searchBirthDate = BirthDate.Text.ToLower();
+            //замена ё->е и удаление лишних пробелов
+            string NormalizeString(string text)
+            {
+                if (string.IsNullOrEmpty(text))
+                    return text;
+                // Заменяем ё на е и убираем лишние пробелы
+                return text.Replace('ё', 'е').Trim();
+            }
+            //Получение значений из полей с нормализацией
+            var searchLastName = NormalizeString(LastName.Text);
+            var searchFirstName = NormalizeString(FirstName.Text);
+            var searchMidName = NormalizeString(MidName.Text);
+            var searchDistrict = NormalizeString(District.Text);
+            var searchBirthDate = NormalizeString(BirthDate.Text);
             Regex dateRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$");
             if (!string.IsNullOrEmpty(searchBirthDate) && !dateRegex.IsMatch(searchBirthDate))
             {
                 BirthDate.BorderBrush = Brushes.Red;
                 return;
             }
-            //поиск совпадений по каждому полю
+            //Поиск совпадений по каждому полю
             foreach (var person in Data)
             {
                 bool isMatch = true;
-                if (!string.IsNullOrEmpty(searchLastName) &&!person.Фамилия.ToLower().Contains(searchLastName))
+                // Нормализуем поля перед сравнением
+                string normalizedLastName = NormalizeString(person.Фамилия);
+                string normalizedFirstName = NormalizeString(person.Имя);
+                string normalizedMidName = NormalizeString(person.Отчество);
+                string normalizedDistrict = NormalizeString(person.Район);
+                if (!string.IsNullOrEmpty(searchLastName) && !normalizedLastName.Contains(searchLastName))
                 {
                     isMatch = false;
                 }
-                if (!string.IsNullOrEmpty(searchFirstName) &&!person.Имя.ToLower().Contains(searchFirstName))
+                if (!string.IsNullOrEmpty(searchFirstName) && !normalizedFirstName.Contains(searchFirstName))
                 {
                     isMatch = false;
                 }
-                if (!string.IsNullOrEmpty(searchMidName) && !person.Отчество.ToLower().Contains(searchMidName))
+                if (!string.IsNullOrEmpty(searchMidName) && !normalizedMidName.Contains(searchMidName))
                 {
                     isMatch = false;
                 }
-                if (!string.IsNullOrEmpty(searchDistrict) &&!person.Район.ToLower().Contains(searchDistrict))
+                if (!string.IsNullOrEmpty(searchDistrict) && !normalizedDistrict.Contains(searchDistrict))
                 {
                     isMatch = false;
                 }
@@ -275,7 +289,7 @@ namespace TableMed
                     dataTemp.Add(person);
                 }
             }
-            // рефреш 
+            // Рефреш
             if (dataTemp.Count > 0)
             {
                 TableM.ItemsSource = dataTemp;
