@@ -25,8 +25,7 @@ namespace TableMed
         public MainWindow()
         {
             InitializeComponent();
-            TableM.ItemsSource = Data;
-
+            TableM.ItemsSource = null;
         }
         public ObservableCollection<Person> Data
         {
@@ -176,13 +175,20 @@ namespace TableMed
                         //добавление заголовков в datagrid
                         foreach (var header in RequiredColumns)
                         {
-                            TableM.Columns.Add(new DataGridTextColumn
+                            DataGridTextColumn column = new DataGridTextColumn
                             {
                                 Header = header,
                                 Binding = new Binding(header)
-                            });
+                            };
+
+                            if (header == "Дата_рождения")
+                            {
+                                column.Binding.StringFormat = "d";
+                            }
+
+                            TableM.Columns.Add(column);
                             TableM.UpdateLayout();
-                        }
+                        }                        
                         //считывание данных построчно
                         var datarow = headers.RowBelow();
                         while (!datarow.IsEmpty())
