@@ -116,7 +116,7 @@ namespace TableMed
                 using (var workbook = new XLWorkbook(CurrentFilePath))
                 {
                     var worksheet = workbook.Worksheets.Worksheet(1);
-                    worksheet.Range(worksheet.Row(2).FirstCell().Address,worksheet.LastCell().Address).Clear();                    
+                    worksheet.Range(worksheet.Row(2).FirstCell().Address, worksheet.LastCell().Address).Clear();
                     for (int i = 0; i < data.Count; i++)
                     {
                         var person = data[i];
@@ -222,7 +222,7 @@ namespace TableMed
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка при чтении файла Excel",MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Ошибка при чтении файла Excel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void Search_Click(object sender, RoutedEventArgs e)
@@ -297,7 +297,7 @@ namespace TableMed
             }
             else
             {
-                MessageBox.Show("Ничего не найдено", "Результат поиска",MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Ничего не найдено", "Результат поиска", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
         private void Clear_Click(object sender, RoutedEventArgs e)
