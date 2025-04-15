@@ -168,12 +168,10 @@ namespace TableMed
                                 Header = header,
                                 Binding = new Binding(header)
                             };
-
                             if (header == "Дата_рождения")
                             {
                                 column.Binding.StringFormat = "dd.MM.yyyy";
                             }
-
                             TableM.Columns.Add(column);
                             TableM.UpdateLayout();
                         }                        
@@ -247,11 +245,6 @@ namespace TableMed
             var searchMidName = NormalizeString(MidName.Text);
             var searchDistrict = NormalizeString(District.Text);
             var searchBirthDate = NormalizeString(BirthDate.Text);
-            Regex dateRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$");
-            if (!string.IsNullOrEmpty(searchBirthDate) && !dateRegex.IsMatch(searchBirthDate))
-            {
-                return;
-            }
             //Поиск совпадений по каждому полю
             foreach (var person in Data)
             {
