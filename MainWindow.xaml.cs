@@ -64,18 +64,6 @@ namespace TableMed
                         if (person != null)
                         {
                             string columnName = e.Column.Header as string;
-
-                            if (columnName == "Дата рождения")
-                            {
-
-                                if (!Regex.IsMatch(e.EditingElement.ToString(), @"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$"))
-                                {
-                                    MessageBox.Show("Неверный формат даты. Используйте формат ДД.ММ.ГГГГ",
-                                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                                    e.Cancel = true;
-                                    return;
-                                }
-                            }
                             switch (columnName)
                             {
                                 case "Фамилия":
@@ -262,7 +250,6 @@ namespace TableMed
             Regex dateRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$");
             if (!string.IsNullOrEmpty(searchBirthDate) && !dateRegex.IsMatch(searchBirthDate))
             {
-                BirthDate.Background = Brushes.Red;
                 return;
             }
             //Поиск совпадений по каждому полю
