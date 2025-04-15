@@ -236,13 +236,22 @@ namespace TableMed
             // Очистка предыдущих результатов
             dataTemp.Clear();
             TableM.ItemsSource = null;
+            char Es = 'ё';
             //замена ё->е и удаление лишних пробелов
             string NormalizeString(string text)
             {
                 if (string.IsNullOrEmpty(text))
-                    return text;
-                // Заменяем ё на е и убираем лишние пробелы
-                return text.Replace('ё', 'е').Trim();
+                {
+                    return text.ToLower();
+                }
+                if(text.Contains(Es))
+                {
+                     return text.ToLower().Replace('ё', 'е').Trim();
+                }
+                else
+                {
+                    return text.ToLower();
+                }
             }
             //Получение значений из полей с нормализацией
             var searchLastName = NormalizeString(LastName.Text);
@@ -253,7 +262,7 @@ namespace TableMed
             Regex dateRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-.](0[1-9]|1[0-2])[-.]\d{4}$");
             if (!string.IsNullOrEmpty(searchBirthDate) && !dateRegex.IsMatch(searchBirthDate))
             {
-                BirthDate.BorderBrush = Brushes.Red;
+                BirthDate.Background = Brushes.Red;
                 return;
             }
             //Поиск совпадений по каждому полю
@@ -265,19 +274,19 @@ namespace TableMed
                 string normalizedFirstName = NormalizeString(person.Имя);
                 string normalizedMidName = NormalizeString(person.Отчество);
                 string normalizedDistrict = NormalizeString(person.Район);
-                if (!string.IsNullOrEmpty(searchLastName) && !normalizedLastName.Contains(searchLastName))
+                if (!string.IsNullOrEmpty(searchLastName.ToLower()) && !normalizedLastName.Contains(searchLastName.ToLower()))
                 {
                     isMatch = false;
                 }
-                if (!string.IsNullOrEmpty(searchFirstName) && !normalizedFirstName.Contains(searchFirstName))
+                if (!string.IsNullOrEmpty(searchFirstName.ToLower()) && !normalizedFirstName.Contains(searchFirstName.ToLower()))
                 {
                     isMatch = false;
                 }
-                if (!string.IsNullOrEmpty(searchMidName) && !normalizedMidName.Contains(searchMidName))
+                if (!string.IsNullOrEmpty(searchMidName.ToLower()) && !normalizedMidName.Contains(searchMidName.ToLower()))
                 {
                     isMatch = false;
                 }
-                if (!string.IsNullOrEmpty(searchDistrict) && !normalizedDistrict.Contains(searchDistrict))
+                if (!string.IsNullOrEmpty(searchDistrict.ToLower()) && !normalizedDistrict.Contains(searchDistrict.ToLower()))
                 {
                     isMatch = false;
                 }
@@ -317,14 +326,3 @@ namespace TableMed
         }
     }
 }
-/*
- * Пользователь    
-  ▼  
-[Загрузка файла] → [Парсинг и валидация] → [Временное хранение данных]  
-  │  
-  ▼  
-[Ввод критериев] → [Коррекция ошибок ввода] → [Поиск по таблице]  
-  │                              │  
-  ▼                              ▼  
-[Отображение результатов]    [Оповещение об ошибках]
- */
