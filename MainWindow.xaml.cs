@@ -16,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 namespace TableMed
 {
+    //a
     public partial class MainWindow : Window
     {
         public ObservableCollection<Person> data = new ObservableCollection<Person>();
